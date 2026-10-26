@@ -82,7 +82,17 @@ const configured = CFG.supabaseUrl && !/TU_PROYECTO/.test(CFG.supabaseUrl) && CF
 function realData(){
   const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, {auth:{flowType:"pkce", persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
   const ck = ({data, error}) => { if (error) throw new Error(error.message); return data; };
+  // El permiso de Discord (provider_token) solo llega en el evento de inicio de sesión: Supabase no lo guarda
+  // en la sesión. Se captura aquí, se guarda solo en esta pestaña y se borra apenas se usa.
+  const TK = "gremioDiscordTok";
+  let providerTok = null; try { providerTok = sessionStorage.getItem(TK); } catch(_){}
+  sb.auth.onAuthStateChange((e, s) => {
+    if (s && s.provider_token) { providerTok = s.provider_token; try { sessionStorage.setItem(TK, providerTok); } catch(_){} }
+    if (e === "SIGNED_OUT") { providerTok = null; try { sessionStorage.removeItem(TK); } catch(_){} }
+  });
   return {
+    providerToken(){ return providerTok; },
+    forgetProviderToken(){ providerTok = null; try { sessionStorage.removeItem(TK); } catch(_){} },
     async session(){ const {data} = await sb.auth.getSession(); return data.session; },
     signIn(){ return sb.auth.signInWithOAuth({provider:"discord", options:{scopes:"identify email guilds", redirectTo: location.origin + location.pathname}}); },
     signOut(){ return sb.auth.signOut(); },
@@ -808,10 +818,14 @@ async function onRoute(){
 }
 async function syncDiscord(){
   // provider_token = permiso que Discord entrega solo al iniciar sesión
-  const tok = ST.session && ST.session.provider_token;
+  const tok = (ST.session && ST.session.provider_token) || (DATA.providerToken && DATA.providerToken());
   ST.synced = true;
-  if (!tok) return;
-  try { const r = await DATA.fn("discordSync", {providerToken: tok}); ST.me = r.profile; if (r.guilds) ST.discordGuilds = r.guilds; }
+  if (!tok) { if (!ST.me || !ST.me.discord_checked_at) ST.msg.auth = {t:"Discord no entregó el permiso para revisar tu cuenta. Presiona «Volver a entrar».", k:"warn"}; return; }
+  try {
+    const r = await DATA.fn("discordSync", {providerToken: tok});
+    ST.me = r.profile; if (r.guilds) ST.discordGuilds = r.guilds;
+    if (DATA.forgetProviderToken) DATA.forgetProviderToken();
+  }
   catch(e) { ST.msg.auth = {t:"No pude verificar tu Discord: " + e.message, k:"err"}; }
 }
 async function boot(){
