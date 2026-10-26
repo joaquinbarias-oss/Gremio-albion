@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://render.albiononline.com https://cdn.discordapp.com; connect-src https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Planificador de viajes · Gremio Albion</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+html,body{margin:0}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+
+/* Layout: banda superior + rejilla de 2 columnas (parámetros | resultados), una columna en móvil */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#18212b; --muted:#5b6876; --line:#d5dce3;
+  --accent:#a26a12; --accent-ink:#ffffff; --accent-soft:#f6ead3;
+  --good:#1d7a46; --bad:#b3261e; --warn:#8a6100;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --panel:#1b222b; --ink:#e6ebf0; --muted:#94a1ae; --line:#2c3642;
+  --accent:#e0a640; --accent-ink:#1a1206; --accent-soft:#33291a;
+  --good:#5fcf8d; --bad:#ff8a80; --warn:#f0c060; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --panel:#1b222b; --ink:#e6ebf0; --muted:#94a1ae; --line:#2c3642;
+  --accent:#e0a640; --accent-ink:#1a1206; --accent-soft:#33291a;
+  --good:#5fcf8d; --bad:#ff8a80; --warn:#f0c060; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{font-family:var(--f-display);font-weight:700;font-size:2.2rem;letter-spacing:.02em;margin:0;line-height:1;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:4px 0 0}
+h2{font-family:var(--f-display);font-weight:600;font-size:1.05rem;text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>label,.lbl{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+select,input[type=number],input[type=text],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 10px;width:100%;box-sizing:border-box;min-width:0}
+input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+select:focus,input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;min-width:44px;font:600 .95rem var(--f-display);letter-spacing:.04em;padding:7px 8px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.btn{font:600 .95rem var(--f-body);padding:9px 14px;border-radius:7px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:progress}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+.recipe{font-family:var(--f-num);font-size:.85rem;background:var(--accent-soft);border-radius:7px;padding:8px 10px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}
+.stat .v{font-family:var(--f-num);font-size:1.3rem;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat .k{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat .s{font-size:.75rem;color:var(--muted)}
+.stat.hero{border-color:var(--accent);background:var(--accent-soft)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.n{font-family:var(--f-num);text-align:right;white-space:nowrap}
+th.n{text-align:right}
+tr.total td{border-top:2px solid var(--line);font-weight:600}
+tr.buy td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+td code{font-family:var(--f-num);font-size:.78rem;color:var(--muted)}
+td input[type=number]{max-width:130px;text-align:right}
+.status{font-size:.85rem;padding:8px 10px;border-radius:7px;border:1px solid var(--line)}
+.status.ok{border-color:var(--good);color:var(--good)}
+.status.err{border-color:var(--bad);color:var(--bad)}
+.status.warn{border-color:var(--warn);color:var(--warn)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details[open] summary{margin-bottom:10px}
+.age{font-size:.75rem;color:var(--muted);display:block}
+.age.old{color:var(--warn)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.phead h2{margin:0}
+.city{margin-top:4px}
+.city h3{font:600 1rem var(--f-display);letter-spacing:.04em;margin:0 0 2px;display:flex;justify-content:space-between;gap:8px}
+.city h3 span{font-family:var(--f-num);font-size:.85rem;color:var(--muted);font-weight:400}
+.city table{table-layout:fixed;min-width:420px}
+.city table td{padding:7px 6px}
+.city th:first-child{width:40%}
+.qty{font-family:var(--f-num);font-weight:600;font-size:1.05rem}
+.summary{display:grid;gap:6px;background:var(--accent-soft);border-radius:9px;padding:12px 14px}
+.summary div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.summary div b,.summary div span:last-child{font-family:var(--f-num);white-space:nowrap}
+.summary .big{font-size:1.1rem;font-weight:600;border-top:1px solid var(--line);padding-top:6px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{counter-increment:st;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.steps li::before{content:counter(st);width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .95rem var(--f-display);display:grid;place-items:center}
+.steps .out{font-weight:600}
+.steps .in{color:var(--muted);font-size:.9rem;margin-top:2px}
+.steps .in b{color:var(--ink);font-family:var(--f-num)}
+.steps .meta{font-size:.8rem;color:var(--muted);margin-top:4px;font-family:var(--f-num)}
+.regions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.regions{grid-template-columns:minmax(0,1fr)}}
+.regions label{border:1px solid var(--line);border-radius:7px;padding:8px 10px;align-items:flex-start}
+.regions small{display:block;color:var(--muted);font-size:.75rem;font-weight:400}
+a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.gbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:12px 16px 0;font-size:.9rem}
+.gbar a{color:var(--accent);font-weight:600;text-decoration:none}
+.gbar .gme{color:var(--muted)}
+.gate{max-width:520px;margin:10vh auto 0;padding:24px 16px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.gate h1{font-family:var(--f-display);font-size:2rem;margin:0}
+.gate p{margin:0;color:var(--muted)}
+.gbtn{display:inline-block;padding:9px 16px;border-radius:7px;background:var(--accent);color:var(--accent-ink)!important;text-decoration:none;font-weight:600}
+.foot{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);font-size:.8rem;text-align:center}
+td input[type=number]{max-width:110px;text-align:right}
+.stat .v span{font-family:inherit}
+</style>
+</head>
+<body>
+<nav class="gbar" id="gbar"><a href="index.html">← Gremio Albion</a></nav>
+<section class="gate" id="gate"><p>Cargando…</p></section>
+<div id="tool" hidden>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Planificador de <span>viajes</span></h1>
+      <p class="sub">Qué llevar, cuántos viajes hacen falta, cuánto ganas y cuánto arriesgas en la ruta.</p>
+    </div>
+    <div class="field" style="min-width:180px">
+      <label for="server">Servidor</label>
+      <select id="server">
+        <option value="west">Americas (West)</option>
+        <option value="europe">Europe</option>
+        <option value="east">Asia (East)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel stack">
+        <h2>Ruta</h2>
+        <div class="row">
+          <div class="field"><label for="origin">Compras en</label><select id="origin"></select></div>
+          <div class="field"><label for="dest">Vendes en</label><select id="dest"></select></div>
+        </div>
+        <div class="field">
+          <span class="lbl">Zona más peligrosa que cruzas</span>
+          <div class="seg" id="zoneSeg"></div>
+          <p class="hint" id="zoneHint"></p>
+          <div id="routeHint" class="status" hidden></div>
+        </div>
+      </section>
+
+      <section class="panel stack">
+        <h2>Tu carga</h2>
+        <div class="row">
+          <div class="field"><label for="capacity">Peso máximo sin sobrecarga (kg)</label><input type="number" id="capacity" min="0" step="10" placeholder="Ej: 1500"></div>
+          <div class="field"><label for="minutes">Minutos por viaje (ida y vuelta)</label><input type="number" id="minutes" min="0" step="1" placeholder="Opcional"></div>
+        </div>
+        <p class="hint">El peso máximo lo ves en el juego, en la barra de peso del inventario, con la montura que vas a usar.</p>
+      </section>
+
+      <section class="panel stack">
+        <h2>Venta</h2>
+        <div class="row">
+          <div class="field">
+            <label for="sellMode">Cómo vendes</label>
+            <select id="sellMode"><option value="order">Orden de venta</option><option value="instant">Venta directa (a orden de compra)</option></select>
+          </div>
+          <div class="field" style="justify-content:flex-end">
+            <label class="check"><input type="checkbox" id="premium" checked> Premium</label>
+          </div>
+        </div>
+        <p class="hint">Impuesto: 4% con premium, 8% sin. La orden de venta suma 2,5% de comisión. En el Black Market solo se vende directo.</p>
+      </section>
+
+      <section class="panel stack">
+        <h2>Agregar a la carga</h2>
+        <div class="field"><span class="lbl">Tipo</span><div class="seg" id="kindSeg"></div></div>
+        <div id="pickRes">
+          <div class="field"><span class="lbl">Material</span><div class="seg" id="matSeg"></div></div>
+          <div class="field"><span class="lbl">Tier</span><div class="seg" id="tierSeg"></div></div>
+          <div class="field"><span class="lbl">Encantamiento</span><div class="seg" id="enchSeg"></div></div>
+        </div>
+        <div class="field" id="pickId" hidden><label for="customId">ID del ítem</label><input type="text" id="customId" placeholder="Ej: T6_BAG o T5_MAIN_SWORD@1" autocomplete="off" style="text-transform:uppercase"></div>
+        <div class="row">
+          <div class="field"><label for="addQty">Cantidad</label><input type="number" id="addQty" min="1" step="1" value="100"></div>
+          <div class="field" style="justify-content:flex-end"><button class="btn" type="button" id="addBtn">Agregar</button></div>
+        </div>
+        <p class="hint" id="pickPreview"></p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel stack">
+        <h2 id="resTitle">Resultado</h2>
+        <div class="stats" id="stats"></div>
+        <div id="riskBox"></div>
+      </section>
+
+      <section class="panel stack">
+        <div class="phead"><h2>Carga</h2><span class="row" style="gap:8px"><button class="btn" type="button" id="fetchBtn">Traer precios en vivo</button><button class="btn ghost" type="button" id="clearBtn">Vaciar</button></span></div>
+        <div id="fetchStatus" class="status" hidden></div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Ítem</th><th class="n">Cantidad</th><th class="n">Peso c/u (kg)</th><th class="n">Compra c/u</th><th class="n">Venta c/u</th><th class="n">Ganancia</th><th class="n">Por kg</th><th></th></tr></thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+        <p class="hint">El peso de cada ítem lo ves en el juego al pasar el mouse sobre él. La página lo recuerda para la próxima vez.</p>
+      </section>
+
+      <section class="panel stack">
+        <h2>Mejor carga para un viaje</h2>
+        <p class="hint">Con lo que agregaste, esto es lo que más ganancia deja sin pasarte del peso máximo: primero lo que más gana por kilo.</p>
+        <div class="tablewrap"><table><tbody id="bestBody"></tbody></table></div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+<footer class="foot">Herramienta de fans, gratuita y no oficial. No está afiliada ni respaldada por Sandbox Interactive GmbH. Albion Online es una marca registrada de Sandbox Interactive GmbH.</footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
+<script src="common.js"></script>
+<script src="rutas-core.js"></script>
+<script src="viajes.js"></script>
+</body></html>

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://render.albiononline.com https://cdn.discordapp.com; connect-src https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Rutas · Gremio Albion</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+html,body{margin:0}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+
+/* Layout: banda superior + rejilla de 2 columnas (parámetros | resultados), una columna en móvil */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#18212b; --muted:#5b6876; --line:#d5dce3;
+  --accent:#a26a12; --accent-ink:#ffffff; --accent-soft:#f6ead3;
+  --good:#1d7a46; --bad:#b3261e; --warn:#8a6100;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --panel:#1b222b; --ink:#e6ebf0; --muted:#94a1ae; --line:#2c3642;
+  --accent:#e0a640; --accent-ink:#1a1206; --accent-soft:#33291a;
+  --good:#5fcf8d; --bad:#ff8a80; --warn:#f0c060; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --panel:#1b222b; --ink:#e6ebf0; --muted:#94a1ae; --line:#2c3642;
+  --accent:#e0a640; --accent-ink:#1a1206; --accent-soft:#33291a;
+  --good:#5fcf8d; --bad:#ff8a80; --warn:#f0c060; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{font-family:var(--f-display);font-weight:700;font-size:2.2rem;letter-spacing:.02em;margin:0;line-height:1;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:4px 0 0}
+h2{font-family:var(--f-display);font-weight:600;font-size:1.05rem;text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>label,.lbl{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+select,input[type=number],input[type=text],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 10px;width:100%;box-sizing:border-box;min-width:0}
+input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+select:focus,input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;min-width:44px;font:600 .95rem var(--f-display);letter-spacing:.04em;padding:7px 8px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.btn{font:600 .95rem var(--f-body);padding:9px 14px;border-radius:7px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:progress}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+.recipe{font-family:var(--f-num);font-size:.85rem;background:var(--accent-soft);border-radius:7px;padding:8px 10px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}
+.stat .v{font-family:var(--f-num);font-size:1.3rem;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat .k{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat .s{font-size:.75rem;color:var(--muted)}
+.stat.hero{border-color:var(--accent);background:var(--accent-soft)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.n{font-family:var(--f-num);text-align:right;white-space:nowrap}
+th.n{text-align:right}
+tr.total td{border-top:2px solid var(--line);font-weight:600}
+tr.buy td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+td code{font-family:var(--f-num);font-size:.78rem;color:var(--muted)}
+td input[type=number]{max-width:130px;text-align:right}
+.status{font-size:.85rem;padding:8px 10px;border-radius:7px;border:1px solid var(--line)}
+.status.ok{border-color:var(--good);color:var(--good)}
+.status.err{border-color:var(--bad);color:var(--bad)}
+.status.warn{border-color:var(--warn);color:var(--warn)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details[open] summary{margin-bottom:10px}
+.age{font-size:.75rem;color:var(--muted);display:block}
+.age.old{color:var(--warn)}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.phead h2{margin:0}
+.city{margin-top:4px}
+.city h3{font:600 1rem var(--f-display);letter-spacing:.04em;margin:0 0 2px;display:flex;justify-content:space-between;gap:8px}
+.city h3 span{font-family:var(--f-num);font-size:.85rem;color:var(--muted);font-weight:400}
+.city table{table-layout:fixed;min-width:420px}
+.city table td{padding:7px 6px}
+.city th:first-child{width:40%}
+.qty{font-family:var(--f-num);font-weight:600;font-size:1.05rem}
+.summary{display:grid;gap:6px;background:var(--accent-soft);border-radius:9px;padding:12px 14px}
+.summary div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.summary div b,.summary div span:last-child{font-family:var(--f-num);white-space:nowrap}
+.summary .big{font-size:1.1rem;font-weight:600;border-top:1px solid var(--line);padding-top:6px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{counter-increment:st;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.steps li::before{content:counter(st);width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .95rem var(--f-display);display:grid;place-items:center}
+.steps .out{font-weight:600}
+.steps .in{color:var(--muted);font-size:.9rem;margin-top:2px}
+.steps .in b{color:var(--ink);font-family:var(--f-num)}
+.steps .meta{font-size:.8rem;color:var(--muted);margin-top:4px;font-family:var(--f-num)}
+.regions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.regions{grid-template-columns:minmax(0,1fr)}}
+.regions label{border:1px solid var(--line);border-radius:7px;padding:8px 10px;align-items:flex-start}
+.regions small{display:block;color:var(--muted);font-size:.75rem;font-weight:400}
+a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.gbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:12px 16px 0;font-size:.9rem}
+.gbar a{color:var(--accent);font-weight:600;text-decoration:none}
+.gbar .gme{color:var(--muted)}
+.gate{max-width:520px;margin:10vh auto 0;padding:24px 16px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.gate h1{font-family:var(--f-display);font-size:2rem;margin:0}
+.gate p{margin:0;color:var(--muted)}
+.gbtn{display:inline-block;padding:9px 16px;border-radius:7px;background:var(--accent);color:var(--accent-ink)!important;text-decoration:none;font-weight:600}
+.foot{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);font-size:.8rem;text-align:center}
+td input[type=number]{max-width:110px;text-align:right}
+.stat .v span{font-family:inherit}
+
+/* Rutas */
+:root{--z-azul:#2f6fd6;--z-amarilla:#d3a21a;--z-roja:#c8372d;--z-negra:#1b1b1b}
+.zd{display:inline-block;width:11px;height:11px;border-radius:50%;flex:0 0 11px;border:1px solid var(--line);vertical-align:-1px}
+.zd.azul{background:var(--z-azul)} .zd.amarilla{background:var(--z-amarilla)} .zd.roja{background:var(--z-roja)} .zd.negra{background:var(--z-negra);border-color:var(--ink)}
+.tag{font:600 .72rem var(--f-num);padding:1px 6px;border-radius:5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.route{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.route li{display:grid;grid-template-columns:28px 14px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line)}
+.route li .num{font:600 .85rem var(--f-num);color:var(--muted);text-align:right}
+.route li .nm{font-weight:600;overflow-wrap:anywhere}
+.route li .nm small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.route li.done .nm{color:var(--muted);text-decoration:line-through}
+.route li.here{background:var(--accent-soft);border-radius:7px}
+.route li .acts{display:flex;gap:6px;align-items:center}
+.route li .acts button{font:600 .75rem var(--f-body);padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.route li .acts button:hover{color:var(--bad);border-color:var(--bad)}
+.nav{display:flex;flex-direction:column;gap:10px}
+.nav .now{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.nav .next{font:700 1.7rem var(--f-display);line-height:1.05;display:flex;gap:10px;align-items:center;overflow-wrap:anywhere}
+.nav .next .zd{width:16px;height:16px;flex-basis:16px}
+.nav .then{font-size:.85rem;color:var(--muted)}
+.nav .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.nav .bar i{display:block;height:100%;background:var(--accent)}
+.nav .warnz{font-size:.85rem;font-weight:600}
+.nav .warnz.roja{color:var(--z-roja)} .nav .warnz.negra{color:var(--bad)}
+.navbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.navbtns .btn{padding:12px}
+.zcount{display:flex;flex-wrap:wrap;gap:10px;font-size:.85rem;color:var(--muted)}
+.zcount span{display:flex;gap:6px;align-items:center}
+.mapbox{border:1px solid var(--line);border-radius:9px;background:var(--bg);overflow:hidden}
+.mapbox svg{display:block;width:100%;height:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:500 .8rem var(--f-body);padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+kbd{font:600 .78rem var(--f-num);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg)}
+.links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.links li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line)}
+.links li .nm{font-weight:600;overflow-wrap:anywhere}
+.links li small{display:block;color:var(--muted);font-size:.78rem;font-weight:400}
+.links li small.soon{color:var(--warn)}
+.links li button{font:600 .8rem var(--f-body);padding:2px 9px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.links li button:hover{color:var(--bad);border-color:var(--bad)}
+.keys{display:flex;flex-direction:column;gap:8px}
+.keys .krow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.keys kbd{font-size:.9rem;padding:3px 8px;min-width:46px;text-align:center}
+.keys button{font:600 .8rem var(--f-body);padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+.keys button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.ava{color:var(--accent);font-weight:600}
+/* Ventana flotante (app de escritorio o ?flotante=1) */
+body.ov{font-size:14px;background:var(--panel)}
+body.ov .gbar,body.ov header,body.ov .foot,body.ov .full{display:none!important}
+body.ov .wrap{padding:8px 10px}
+body.ov .grid{grid-template-columns:minmax(0,1fr);gap:8px}
+body.ov .panel{padding:10px;border:none}
+body.ov .nav .next{font-size:1.45rem}
+body.ov .ovdrag{display:flex}
+.ovdrag{display:none;justify-content:space-between;align-items:center;gap:8px;font:600 .8rem var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 10px;-webkit-app-region:drag;border-bottom:1px solid var(--line)}
+body.ovapp .ovdrag{height:30px;padding:0 146px 0 10px}
+.ovdrag span{white-space:nowrap}
+body.ovapp:not(.ov) .ovdrag{display:flex}
+.ovdrag button{-webkit-app-region:no-drag;font:600 .75rem var(--f-body);padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+</style>
+</head>
+<body>
+<nav class="gbar" id="gbar"><a href="index.html">← Gremio Albion</a></nav>
+<section class="gate" id="gate"><p>Cargando…</p></section>
+<div id="tool" hidden>
+<div class="ovdrag"><span>Ruta</span><span><button type="button" id="ovEdit">Ajustes</button> <button type="button" id="ovHide" title="Ocultar (F9)" hidden>–</button></span></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Rutas por el <span>mapa</span></h1>
+      <p class="sub">El camino entre dos mapas cualquiera, con el color de cada zona, y un paso a paso para ir marcando por dónde vas.</p>
+    </div>
+    <div class="field" style="min-width:180px">
+      <label for="server">Servidor</label>
+      <select id="server">
+        <option value="west">Americas (West)</option>
+        <option value="europe">Europe</option>
+        <option value="east">Asia (East)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel stack" id="formPanel" aria-labelledby="hForm">
+        <h2 id="hForm">Ruta</h2>
+        <div class="field"><label for="from">Desde</label><input type="text" id="from" list="maps" autocomplete="off" placeholder="Escribe un mapa, p. ej. Martlock"></div>
+        <div class="field"><label for="to">Hasta</label><input type="text" id="to" list="maps" autocomplete="off" placeholder="Escribe un mapa, p. ej. Caerleon"></div>
+        <datalist id="maps"></datalist>
+        <div class="field"><span class="lbl">Preferencia</span><div class="seg" id="prefSeg"></div><p class="hint" id="prefHint"></p></div>
+        <div class="field" id="avoidWrap" hidden><span class="lbl">Mapas que estás evitando</span><div class="chips" id="avoidChips"></div><p class="hint">Toca uno para volver a permitirlo.</p></div>
+        <div class="actions"><button class="btn" type="button" id="goBtn">Calcular ruta</button><button class="btn ghost" type="button" id="swapBtn">Invertir</button></div>
+        <div id="formStatus" class="status" hidden></div>
+      </section>
+
+      <section class="panel stack" id="navPanel" aria-labelledby="hNav" hidden>
+        <h2 id="hNav" class="full">Paso a paso</h2>
+        <div class="nav" id="nav" aria-live="polite"></div>
+        <div class="navbtns"><button class="btn ghost" type="button" id="backBtn">← Atrás</button><button class="btn" type="button" id="nextBtn">Ya crucé →</button></div>
+        <p class="hint full" id="keyHint"></p>
+      </section>
+
+      <section class="panel stack" id="avPanel" aria-labelledby="hAv">
+        <div class="phead"><h2 id="hAv">Caminos de Avalon</h2><span class="tag" id="avCount"></span></div>
+        <label class="check"><input type="checkbox" id="avUse"> Usarlos en las rutas</label>
+        <div id="avForm" class="stack" hidden>
+          <div class="row">
+            <div class="field"><label for="avA">Desde</label><input type="text" id="avA" list="maps" autocomplete="off" placeholder="Mapa o camino"></div>
+            <div class="field"><label for="avB">Hasta</label><input type="text" id="avB" list="maps" autocomplete="off" placeholder="Mapa o camino"></div>
+          </div>
+          <div class="field"><span class="lbl">Tiempo que le queda al portal</span>
+            <div class="row"><input type="number" id="avH" min="0" max="24" step="1" placeholder="horas" aria-label="Horas"><input type="number" id="avM" min="0" max="59" step="1" placeholder="minutos" aria-label="Minutos"></div>
+          </div>
+          <div class="actions"><button class="btn" type="button" id="avAdd">Anotar conexión</button></div>
+          <p class="hint">Uno de los dos debe ser un camino de Avalon. El tiempo aparece al pasar el mouse sobre el portal. Se borra sola cuando vence.</p>
+        </div>
+        <div id="avStatus" class="status" hidden></div>
+        <ul class="links" id="avList"></ul>
+      </section>
+
+      <section class="panel stack" id="keysPanel" aria-labelledby="hKeys">
+        <h2 id="hKeys">Teclas</h2>
+        <div class="keys" id="keys"></div>
+        <div id="keysStatus" class="status" hidden></div>
+        <p class="hint" id="keysHint"></p>
+        <div class="actions"><button class="btn ghost" type="button" id="keysReset">Restablecer</button></div>
+      </section>
+    </div>
+
+    <div class="col full">
+      <section class="panel stack" aria-labelledby="hRes">
+        <div class="phead"><h2 id="hRes">Recorrido</h2><span class="zcount" id="zcount"></span></div>
+        <div class="mapbox" id="mapbox"></div>
+        <ol class="route" id="route"></ol>
+        <p class="hint">Los caminos de Avalon solo se usan cuando alguien del gremio anota sus conexiones. El resto del mapa sale de los archivos del juego y se actualiza con cada parche.</p>
+      </section>
+      <section class="panel stack" aria-labelledby="hOv">
+        <h2 id="hOv">Ventana flotante sobre el juego</h2>
+        <p class="hint">La app de escritorio <b>Gremio Rutas</b> abre esta misma página en una ventana pequeña que queda siempre encima del juego (usa el juego en modo <i>ventana sin bordes</i>). Avanzas con una tecla cuando cruzas un mapa (F8 de fábrica; la cambias en «Teclas»). No lee el juego ni su memoria: tú le dices cuándo cruzaste.</p>
+        <p class="hint">También puedes abrir la vista compacta en el navegador: <a id="ovLink" href="rutas.html?flotante=1">rutas.html?flotante=1</a>.</p>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+<footer class="foot full">Herramienta de fans, gratuita y no oficial. No está afiliada ni respaldada por Sandbox Interactive GmbH. Albion Online es una marca registrada de Sandbox Interactive GmbH.</footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
+<script src="common.js"></script>
+<script src="rutas-core.js"></script>
+<script src="rutas.js"></script>
+</body>
+</html>
